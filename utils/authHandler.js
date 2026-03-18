@@ -3,13 +3,19 @@ let jwt = require('jsonwebtoken')
 module.exports = {
     CheckLogin: async function (req, res, next) {
         try {
+            let token;
             if (!req.headers.authorization || !req.headers.authorization.startsWith("Bearer")) {
-                res.status(404).send({
-                    message: "ban chua dang nhap"
-                })
-                return;
+                if (req.cookies.NNPTUD_S4) {
+                    token = req.cookies.NNPTUD_S4;
+                } else {
+                    res.status(404).send({
+                        message: "ban chua dang nhap"
+                    })
+                    return;
+                }
+            } else {
+                token = req.headers.authorization.split(" ")[1];
             }
-            let token = req.headers.authorization.split(" ")[1];
             let result = jwt.verify(token, 'secret')
             if (result.exp * 1000 < Date.now) {
                 res.status(404).send({
@@ -31,6 +37,16 @@ module.exports = {
                 message: "ban chua dang nhap"
             })
         }
-
+    },
+    CheckRole: function (...requiredRole) {
+        return async function (req, res, next) {
+            let user = req.user;
+            let currentRole = user.role.name;
+            if (requiredRole.includes(currentRole)) {
+                next()
+            } else {
+                res.status(403).send({ message: "ban khong co quyen" });
+            }
+        }
     }
 }

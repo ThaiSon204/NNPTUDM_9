@@ -29,12 +29,33 @@ module.exports = {
             })
         return user;
     },
+    GetAnUserByEmail: async function (email) {
+        let user = await userModel
+            .findOne({
+                isDeleted: false,
+                email: email
+            })
+        return user;
+    },
+    GetAnUserByToken: async function (token) {
+        let user = await userModel
+            .findOne({
+                isDeleted: false,
+                forgotPasswordToken: token
+            })
+        if (user.forgotPasswordTokenExp > Date.now()) {
+            return user;
+        } else {
+            return false;
+        }
+
+    },
     GetAnUserById: async function (id) {
         let user = await userModel
             .findOne({
                 isDeleted: false,
                 _id: id
-            })
+            }).populate('role')
         return user;
     }
 

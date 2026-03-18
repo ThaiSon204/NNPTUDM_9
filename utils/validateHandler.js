@@ -14,6 +14,20 @@ module.exports = {
             next()
         }
     },
+    ChangePasswordValidator: [
+        body('oldpassword').notEmpty().withMessage("old password khong duoc rong"),
+        body('newpassword').notEmpty().withMessage("new password khong duoc rong").bail().isStrongPassword({
+            minLength: 8,
+            minLowercase: 1,
+            minNumbers: 1,
+            minSymbols: 1,
+            minUppercase: 1
+        }).withMessage(" password it naht 8 ki tu trong do co it nhat 1 ki tu dac biet, 1 ki tu in hoa, 1 ki tu thuong , 1 ki tu so"),
+        body("avatarUrl").optional({
+            checkFalsy: true
+        }).isURL().withMessage("URL sai dinh dang"),
+        body("role").notEmpty().withMessage("role khong duoc de trong").bail().isMongoId().withMessage("role khong hop le")
+    ],
     CreateAnUserValidator: [
         body('username').notEmpty().withMessage("username khong duoc rong").bail().isAlphanumeric().withMessage("username khong duoc chua ki tu dac biet"),
         body('email').notEmpty().withMessage("email khong duoc rong").bail().isEmail().withMessage("email sai dinh dang").normalizeEmail(),
